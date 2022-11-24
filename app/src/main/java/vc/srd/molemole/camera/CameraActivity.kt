@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.Display
+import android.view.Surface
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -20,6 +22,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import vc.srd.molemole.MainActivity
 import vc.srd.molemole.databinding.ActivityCameraBinding
+import vc.srd.molemole.review.ReviewActivity
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -43,7 +46,7 @@ class CameraActivity : AppCompatActivity() {
         binding = ActivityCameraBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        file = File(this.filesDir,"img")
+        file = File(this.filesDir,"img.jpeg")
 
         // Request camera permissions
         if (allPermissionsGranted()) {
@@ -146,7 +149,9 @@ class CameraActivity : AppCompatActivity() {
                     val msg = "Photo capture succeeded: ${output.savedUri}"
                     Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
-                    startActivity(Intent(context, MainActivity::class.java))
+                    val reviewIntent = Intent(context, ReviewActivity::class.java)
+                    reviewIntent.putExtra("file", file)
+                    startActivity(reviewIntent)
                 }
             }
         )
@@ -166,7 +171,10 @@ class CameraActivity : AppCompatActivity() {
                     it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
                 }
 
-            imageCapture = ImageCapture.Builder().build()
+            imageCapture = ImageCapture
+                .Builder()
+                .setTargetRotation(Surface.ROTATION_0)
+                .build()
 
             // Select back camera as a default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
